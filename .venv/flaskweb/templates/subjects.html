@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}科目管理{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">科目管理</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{{ url_for('add_subject') }}" class="btn btn-sm btn-primary">
+                <i class="fa fa-plus mr-1"></i>添加新科目
+            </a>
+        </div>
+    </div>
+
+    {% if subjects and subjects|length > 0 %}
+        <div class="row">
+            {% for subject in subjects %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm hover-shadow transition-all duration-300">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h5 class="card-title mb-0">{{ subject.name }}</h5>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fa fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ url_for('subject_detail', id=subject.id) }}">
+                                                <i class="fa fa-eye mr-1"></i>查看详情
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ url_for('edit_subject', id=subject.id) }}">
+                                                <i class="fa fa-edit mr-1"></i>编辑科目
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <button type="button" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ subject.id }}">
+                                                <i class="fa fa-trash mr-1"></i>删除科目
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <p class="card-text text-truncate-3">
+                                {% if subject.description %}
+                                    {{ subject.description }}
+                                {% else %}
+                                    <span class="text-muted">暂无描述</span>
+                                {% endif %}
+                            </p>
+
+                            <hr class="my-3">
+
+                            <div class="small text-muted">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>总学习时长</span>
+                                    <span>{{ subject.total_duration }} 小时</span>
+                                </div>
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>学习次数</span>
+                                    <span>{{ subject.total_sessions }} 次</span>
+                                </div>
+                                <div class="d-flex justify-content-between">
+                                    <span>最近学习</span>
+                                    <span>
+                                        {% if subject.last_studied %}
+                                            {{ subject.last_studied.strftime('%Y-%m-%d') }}
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent border-top d-flex justify-content-between">
+                            <small class="text-muted">创建于 {{ subject.created_at.strftime('%Y-%m-%d') }}</small>
+                            {% set active_logs = subject.logs|selectattr('is_active')|list %}
+                            {% if active_logs %}
+                                <span class="badge bg-success">
+                                    <i class="fa fa-circle text-xs pulse-animation"></i> 学习中
+                                </span>
+                            {% else %}
+                                <!-- 开始学习按钮 - 打开当前科目的专属弹窗 -->
+                                <button type="button" class="btn btn-sm btn-success"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#goalSettingModal{{ subject.id }}">
+                                    <i class="fa fa-play mr-1"></i>开始学习
+                                </button>
+
+                                <!-- 每个科目单独的目标设置弹窗（ID唯一） -->
+                                <div class="modal fade" id="goalSettingModal{{ subject.id }}" tabindex="-1" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-primary text-white">
+                                                <h5 class="modal-title">设置学习目标 - {{ subject.name }}</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form method="GET" action="{{ url_for('start_checkin', subject_id=subject.id) }}">
+                                                <div class="modal-body">
+                                                    <p class="mb-3">请设置本次学习的目标时长：</p>
+                                                    <div class="d-flex align-items-center justify-content-center gap-3">
+                                                        <div class="input-group" style="width: auto;">
+                                                            <input type="number" name="hours" class="form-control text-center" min="0" max="24" value="1" style="width: 70px;" required>
+                                                            <span class="input-group-text">小时</span>
+                                                        </div>
+                                                        <div class="input-group" style="width: auto;">
+                                                            <input type="number" name="minutes" class="form-control text-center" min="0" max="59" value="0" style="width: 70px;" required>
+                                                            <span class="input-group-text">分钟</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer justify-content-center">
+                                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                                                    <button type="submit" class="btn btn-success">确认并开始</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 删除确认模态框（ID唯一） -->
+                <div class="modal fade" id="deleteModal{{ subject.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title">确认删除</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>您确定要永久删除科目 <strong>"{{ subject.name }}"</strong> 吗？</p>
+                                <p>这将同时删除该科目的所有 <strong>{{ subject.total_sessions }} 条学习记录</strong>。</p>
+                                <p class="text-danger"><i class="fa fa-exclamation-circle"></i> 此操作不可恢复，请谨慎操作！</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">取消</button>
+                                <form method="POST" action="{{ url_for('delete_subject', id=subject.id) }}">
+                                    <button type="submit" class="btn btn-danger">确认删除</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="fa fa-book-open text-muted" style="font-size: 48px;"></i>
+            </div>
+            <h3>还没有创建任何科目</h3>
+            <p class="text-muted mb-4">创建您的第一个学习科目开始记录学习历程</p>
+            <a href="{{ url_for('add_subject') }}" class="btn btn-primary">
+                <i class="fa fa-plus mr-1"></i>添加第一个科目
+            </a>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <style>
+        .hover-shadow:hover {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transform: translateY(-5px);
+        }
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        .duration-300 {
+            transition-duration: 300ms;
+        }
+        .text-truncate-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .pulse-animation {
+            animation: pulse 1.5s infinite;
+            display: inline-block;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+    </style>
+{% endblock %}

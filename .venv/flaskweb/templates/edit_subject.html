@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}编辑 {{ subject.name }}{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">编辑科目</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{{ url_for('subject_detail', id=subject.id) }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fa fa-arrow-left mr-1"></i>返回详情
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">科目信息</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">科目名称 <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required
+                                   value="{{ subject.name }}" placeholder="例如：Python编程、高等数学...">
+                            <div class="form-text">请输入一个简洁明了的科目名称</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">科目描述</label>
+                            <textarea class="form-control" id="description" name="description" rows="5"
+                                      placeholder="请输入对这个科目的描述...">{{ subject.description or '' }}</textarea>
+                            <div class="form-text">可以描述学习目标、学习内容等信息（选填）</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-save mr-1"></i>保存修改
+                            </button>
+                            <a href="{{ url_for('subject_detail', id=subject.id) }}" class="btn btn-outline-secondary ms-2">
+                                取消
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">学习统计</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-1">
+                        <strong><i class="fa fa-clock-o mr-1"></i>总学习时长:</strong> {{ subject.total_duration }} 小时
+                    </p>
+                    <p class="mb-1">
+                        <strong><i class="fa fa-calendar-check-o mr-1"></i>学习次数:</strong> {{ subject.total_sessions }} 次
+                    </p>
+                    <p class="mb-0">
+                        <strong><i class="fa fa-calendar mr-1"></i>创建时间:</strong> {{ subject.created_at.strftime('%Y-%m-%d') }}
+                    </p>
+
+                    <hr>
+
+                    <div class="alert alert-info">
+                        <p class="mb-0"><i class="fa fa-lightbulb-o mr-1"></i> 修改科目信息不会影响已有的学习记录</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block title %}添加新科目{% endblock %}
+
+{% block content %}
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+        <h1 class="h2">添加新科目</h1>
+        <div class="btn-toolbar mb-2 mb-md-0">
+            <a href="{{ url_for('subjects') }}" class="btn btn-sm btn-outline-secondary">
+                <i class="fa fa-arrow-left mr-1"></i>返回列表
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <form method="POST">
+                <div class="mb-3">
+                    <label for="name" class="form-label">科目名称 <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="name" name="name" required
+                           placeholder="例如：Python编程、高等数学...">
+                    <div class="form-text">请输入一个简洁明了的科目名称</div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">科目描述</label>
+                    <textarea class="form-control" id="description" name="description" rows="5"
+                              placeholder="请输入对这个科目的描述..."></textarea>
+                    <div class="form-text">可以描述学习目标、学习内容等信息（选填）</div>
+                </div>
+
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-save mr-1"></i>保存科目
+                    </button>
+                    <a href="{{ url_for('subjects') }}" class="btn btn-outline-secondary ms-2">
+                        取消
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">提示信息</h5>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">添加科目后，您可以开始记录该科目的学习时间。</p>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <i class="fa fa-info-circle text-primary mr-2"></i>科目名称是唯一的
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fa fa-info-circle text-primary mr-2"></i>描述信息可以帮助您更好地组织学习
+                        </li>
+                        <li class="list-group-item">
+                            <i class="fa fa-info-circle text-primary mr-2"></i>添加后可以随时编辑科目信息
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
